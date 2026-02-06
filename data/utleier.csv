@@ -1,0 +1,11 @@
+fornavn,etternavn,obilnr,epost,sykkel_modell,sykkel_innkjopsdato,start_stasjon_navn,start_stasjon_adresse,slutt_stasjon_navn,slutt_stasjon_adresse,utleie_tidspunkt,innlevert_tidspunkt
+Ole,Hansen,+4791234567,ole.hansen@example.com,City Bike Pro,2023-03-15,Sentrum Stasjon,Karl Johans gate 1 Oslo,Universitetet Stasjon,Blindern Oslo,2023-06-01 08:30:00,2023-06-01 09:15:00
+Ole,Hansen,+4791234567,ole.hansen@example.com,Urban Cruiser,2023-04-20,Universitetet Stasjon,Blindern Oslo,Grünerløkka Stasjon,Thorvald Meyers gate 10 Oslo,2023-06-05 14:20:00,2023-06-05 15:30:00
+Kari,Olsen,+4792345678,kari.olsen@example.com,EcoBike 3000,2023-02-10,Grünerløkka Stasjon,Thorvald Meyers gate 10 Oslo,Aker Brygge Stasjon,Stranden 1 Oslo,2023-06-10 10:00:00,2023-06-10 11:45:00
+Kari,Olsen,+4792345678,kari.olsen@example.com,City Bike Pro,2023-03-15,Aker Brygge Stasjon,Stranden 1 Oslo,Sentrum Stasjon,Karl Johans gate 1 Oslo,2023-06-12 16:30:00,2023-06-12 17:00:00
+Per,Andersen,+4793456789,per.andersen@example.com,Urban Cruiser,2023-05-05,Majorstuen Stasjon,Bogstadveien 50 Oslo,Sentrum Stasjon,Karl Johans gate 1 Oslo,2023-06-15 07:45:00,2023-06-15 08:30:00
+Lise,Johansen,+4794567890,lise.johansen@example.com,City Bike Pro,2023-01-20,Sentrum Stasjon,Karl Johans gate 1 Oslo,Universitetet Stasjon,Blindern Oslo,2023-06-18 12:00:00,2023-06-18 13:20:00
+Ole,Hansen,+4791234567,ole.hansen@example.com,EcoBike 3000,2023-02-10,Grünerløkka Stasjon,Thorvald Meyers gate 10 Oslo,Aker Brygge Stasjon,Stranden 1 Oslo,2023-06-20 09:15:00,2023-06-20 10:00:00
+Erik,Larsen,+4795678901,erik.larsen@example.com,Urban Cruiser,2023-04-20,Aker Brygge Stasjon,Stranden 1 Oslo,Majorstuen Stasjon,Bogstadveien 50 Oslo,2023-06-22 15:30:00,2023-06-22 16:45:00
+Kari,Olsen,+4792345678,kari.olsen@example.com,City Bike Pro,2023-03-15,Majorstuen Stasjon,Bogstadveien 50 Oslo,Sentrum Stasjon,Karl Johans gate 1 Oslo,2023-06-25 11:00:00,2023-06-25 12:30:00
+Anna,Nilsen,+4796789012,anna.nilsen@example.com,EcoBike 3000,2023-06-01,Sentrum Stasjon,Karl Johans gate 1 Oslo,Grünerløkka Stasjon,Thorvald Meyers gate 10 Oslo,2023-06-28 13:45:00,2023-06-28 14:30:00

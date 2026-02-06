@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: data1500-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: oblig01
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_oblig_!:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+      # Test scripts (NEW)
+      - ./test-scripts:/test-scripts:ro
+    networks:
+      - data1500-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d oblig01"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data_oblig_1:
+    driver: local
+
+networks:
+  data1500-network:
+    driver: bridge
