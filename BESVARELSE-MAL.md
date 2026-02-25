@@ -14,11 +14,15 @@
 
 **Identifiserte entiteter:**
 
-[Skriv ditt svar her - list opp alle entitetene du har identifisert]
+Kunde, Stasjon, Sykkel, Lås, Utleie
 
 **Attributter for hver entitet:**
 
-[Skriv ditt svar her - list opp attributtene for hver entitet]
+- Kunde: kunde_id, fornavn, etternavn, mobilnummer, epost 
+- Stasjon: stasjon_id, navn, adresse, lengdegrad, breddegrad
+- Sykkel: sykkel_id, stasjon_id, laas_id, aktiv
+- Lås: laas_id, aktiv
+- Utleie: utleie_id, kunde_id, sykkel_id, utlevert_tidspunkt, innlevert_tidspunkt, leiebelop
 
 ---
 
@@ -26,16 +30,77 @@
 
 **Valgte datatyper og begrunnelser:**
 
-[Skriv ditt svar her - forklar hvilke datatyper du har valgt for hver attributt og hvorfor]
+- Kunde: 
+  - kunde_id: **SERIAL** - Denne får en surrogatønkkel, fordi det er stabilt og effektivt i relasjoner. 
+  - fornavn: **varchar(50)** - Dette er et kort tekstfelt, med en begrenset lengde.
+  - etternavn: **varchar(50)** - Samme begrunnelse som fornavn. 
+  - mobilnummer: **varchar(15)** - Siden telefonnummere kan inneholde landskoder, f.eks. "+47", og ledende nuller. 
+  - epost: **varchar(254)** - Dette er maks lengde for epost i praksis (RFC) og er vanlig i databaser.
+  
+- Stasjon:
+  - stasjon_id: **SERIAL** - Surrogatnøkkelen.
+  - navn: **varchar(100)** - Navn på stasjonen, grei lengde. 
+  - adresse: **varchar(200)** - Adressen eller området som tekst, grei lengde. 
+  - breddegrad: **numeric(9,6)** - For en presis GPS-lagring.
+  - lengdegrad: **numeric(9,6)** - For en presis GPS-lagring.
+
+- Lås:
+  - laas_id: **SERIAL** - Surrogatnøkkel
+  - stasjon_id: **BIGINT** - Denne blir en FK til stasjon.
+  - posisjon_nr: **INTEGER** - Plass eller nummer på låsen på stasjonen.
+  - aktiv: **BOOLEAN** - Om den er aktiv eller utleid (True eller false).
+
+- Sykkel:
+  - sykkel_id: **SERIAL** - Surrogatnøkkel.
+  - stasjon_id: **BIGINT** - FK til stasjon når sykkelen står parkert (NULL når den er utleid).
+  - laas_id: **BIGINT** - FK til lås når sykkelen er låst (NULL når den er utleid).
+  - aktiv: **varchar(20)** - For en enkel status, som "tilgjengelig", "utleid", osv..
+
+- Utleie:
+  - utleie_id: **SERIAL** - Surrogatnøkkel.
+  - kunde_id: **BIGINT** - Blir FK til kunde.
+  - sykkel_id: **BIGINT** - Blir FK til sykkel.
+  - utlevert_tidspunkt: **TIMESTAMPTZ** - Dette blir et tidsstempel med tidssone.
+  - innlevert_tidspunkt: **TIMESTAMPTZ** - Null når sykkeen ikke er levert ennå.
+  - leiebelop: **NUMERIC(10,2)** - For penger med 2 desimaler. Dette unngår avrundingsfeil.
 
 **`CHECK`-constraints:**
 
-[Skriv ditt svar her - list opp alle CHECK-constraints du har lagt til og forklar hvorfor de er nødvendige]
+```
+Kunde:
+  - CHECK (mobilnummer ~ '^\+?[0-9]{8,15}$') - Det må se ut som et mobilnummer (tillater + og 8-15 siffer), og skal sikre at ikke bokstaver blir lagret.
+  - CHECK (epost ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$') - Skal passe på at mail er i henhold til et bestemt format.
+  - CHECK (length(trim(fornavn)) > 0) - Sjekker at fornavn ikke står tom.
+  - CHECK (length(trim(etternavn)) > 0) - - Sjekker at etternavn ikke står tom.
+```
+```
+Stasjon:
+  - CHECK (breddegrad BETWEEN -90 AND 90)
+  - CHECK (lengdegrad BETWEEN -180 AND 180)
+  (Begge disse sjekker etter gyldige koordinater)
+```
+
+```
+Lås:
+  - CHECK (posisjon_nr > 0) - Posisjon må være positiv
+  
+```
+
+```
+Sykkel:
+  - CHECK (status IN ('tilgjengelig','utleid','service')) - Sjekker status
+```
+
+```
+Uleie:
+  - CHECK (innlevert_tidspunkt IS NULL OR innlevert_tidspunkt > utlevert_tidspunkt) - Innlevering etter utleie.
+  - CHECK (leiebelop IS NULL OR leiebelop >= 0) - Leiebeløpet kan ikke være negativt.
+```
+
 
 **ER-diagram:**
-
-[Legg inn mermaid-kode eller eventuelt en bildefil fra `mermaid.live` her]
-
+- Er-diagram med entiteter og attributter:
+![img_1.png](img_1.png)
 ---
 
 ### Oppgave 1.3: Primærnøkler
