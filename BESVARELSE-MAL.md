@@ -18,14 +18,14 @@ Kunde, Stasjon, Sykkel, Lås, Utleie
 
 **Attributter for hver entitet:**
 
+```
 - Kunde: kunde_id, fornavn, etternavn, mobilnummer, epost 
-- Stasjon: stasjon_id, navn, adresse, lengdegrad, breddegrad
-- Sykkel: sykkel_id, laas_id, status
+- Stasjon: stasjon_id, navn, adresse
+- Sykkel: sykkel_id, laas_id, status, modell, innkjopsdato
 - Lås: laas_id, stasjon_id, posisjon_nr, aktiv
-- Utleie: utleie_id, kunde_id, sykkel_id, utlevert_tidspunkt, innlevert_tidspunkt, leiebelop
-
-En sykkel er koblet til en lås (laas_id), og låsen er igjen koblet til en stasjon. Dermed kan hvilken stasjon sykkelen befinner seg på utledes indirekte via låsen, noe som reduserer redundans i databasen. Når en sykkel er utleid vil laas_id være NULL, noe som indikerer at sykkelen ikke er parkert ved en stasjon.
-
+- Utleie: utleie_id, kunde_id, sykkel_id, start_stasjon_id, slutt_stasjon_id, utlevert_tidspunkt, innlevert_tidspunkt, leiebelop
+``` 
+- Start- og sluttstasjon lagres i Utleie for å bevare historisk informasjon om hvor utleien startet og avsluttet. Dette kan ikke utledes fra sykkelens nåværende plassering, og lagres derfor eksplisitt.
 ---
 
 ### Oppgave 1.2: Datatyper og `CHECK`-constraints
@@ -42,9 +42,7 @@ En sykkel er koblet til en lås (laas_id), og låsen er igjen koblet til en stas
 - Stasjon:
   - stasjon_id: **SERIAL** - Surrogatnøkkelen.
   - navn: **varchar(100)** - Navn på stasjonen, grei lengde. 
-  - adresse: **varchar(200)** - Adressen eller området som tekst, grei lengde. 
-  - breddegrad: **numeric(9,6)** - For en presis GPS-lagring.
-  - lengdegrad: **numeric(9,6)** - For en presis GPS-lagring.
+  - adresse: **varchar(200)** - Adressen eller området som tekst, grei lengde.
 
 - Lås:
   - laas_id: **SERIAL** - Surrogatnøkkel
@@ -56,11 +54,15 @@ En sykkel er koblet til en lås (laas_id), og låsen er igjen koblet til en stas
   - sykkel_id: **SERIAL** - Surrogatnøkkel.
   - laas_id: **BIGINT** - FK til lås når sykkelen er låst (NULL når den er utleid).
   - status: **varchar(20)** - For en enkel status, som "tilgjengelig", "utleid", osv..
+  - modell: **varchar(100)** - Modellnavn fra datasettet.
+  - innkjopsdato: **DATE** - Dato sykkelen ble kjøpt.
 
 - Utleie:
   - utleie_id: **SERIAL** - Surrogatnøkkel.
   - kunde_id: **BIGINT** - Blir FK til kunde.
   - sykkel_id: **BIGINT** - Blir FK til sykkel.
+  - start_stasjon_id: **BIGINT** - FK til startstasjon.
+  - slutt_stasjon_id: **BIGINT** - FK til sluttstasjon.
   - utlevert_tidspunkt: **TIMESTAMPTZ** - Dette blir et tidsstempel med tidssone.
   - innlevert_tidspunkt: **TIMESTAMPTZ** - NULL når sykkelen ikke er levert ennå.
   - leiebelop: **NUMERIC(10,2)** - For penger med 2 desimaler. Dette unngår avrundingsfeil.
@@ -73,12 +75,6 @@ Kunde:
   - CHECK (epost ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$') - Skal passe på at mail er i henhold til et bestemt format.
   - CHECK (length(trim(fornavn)) > 0) - Sjekker at fornavn ikke står tom.
   - CHECK (length(trim(etternavn)) > 0) - - Sjekker at etternavn ikke står tom.
-```
-```
-Stasjon:
-  - CHECK (breddegrad BETWEEN -90 AND 90)
-  - CHECK (lengdegrad BETWEEN -180 AND 180)
-  (Begge disse sjekker etter gyldige koordinater)
 ```
 
 ```
@@ -100,9 +96,9 @@ Utleie:
 
 
 **ER-diagram:**
-- Er-diagram med entiteter og attributter: 
-  - Mermaid støtter ikke alltid full PostgreSQL-syntaks for datatyper, derfor vises enkelte typer forenklet i diagrammet.  
-![img_1.png](img_1.png)
+- Er-diagram-oppsett med entiteter og attributter med datatyper:
+  ![img.png](img.png)
+
 ---
 
 ### Oppgave 1.3: Primærnøkler
@@ -142,7 +138,7 @@ Utleie:
 
 - Oppdetert ER-diagram med Primærnøkler:
 
-![img_2.png](img_2.png)
+![img_1.png](img_1.png)
 ---
 
 ### Oppgave 1.4: Forhold og fremmednøkler
@@ -162,9 +158,16 @@ Utleie:
 4. Sykkel - Utleie
    - Kardinalitet: **en-til-mange (1:N)**
    - En sykkel kan inngå i mange utleier over tid, men hver utleie gjelder nøyaktig èn sykkel.
+5. Stasjon - Utleie (start)
+    - Kardinalitet: **en-til-mange (1:N)**
+    - En stasjon kan være startpunkt for mange utleier.
+6. Stasjon - Utleie (slutt)
+    - Kardinalitet: **en-til-mange (1:N)**
+    - En stasjon kan være sluttpunkt for mange utleier.
 - **mange-til-mange (M:N)**: Kunde - Sykkel
    - En kunde kan leie mange sykler over tid, og en sykkel kan leies av mange kunder over tid. 
    - Dette er et **mange-til-mange-forhold**, og det løses opp ved hjelp av den assosiative entiteten **Utleie**, som kobler sammen kunde og sykkel og lagrer tidsintervall og leiebeløp.
+
 
 
 **Fremmednøkler:**
@@ -179,11 +182,14 @@ Fremmednøkler brukes for å mplementere forholdene over:
    - Implementerer forholdet **Kunde (1) - (N) Utleie**.
 4. ``UTLEIE.sykkel_id`` --> ``SYKKEL.sykkel_id``
    - Implementerer forholdet **Sykkel(1) - (N) Utleie**.
+5. ``UTLEIE.start_stasjon_id`` --> **STASJON.stasjon_id**
+6. ``UTLEIE.slutt_stasjon_id`` --> **STASJON.stasjon_id**
+
 
 **Oppdatert ER-diagram:**
 
-- Oppdatert ER-diagram med FKs:
-![img_3.png](img_3.png)
+- Oppdatert ER-diagram med FKs og relasjoner:
+![img_2.png](img_2.png)
 ---
 
 ### Oppgave 1.5: Normalisering
@@ -208,7 +214,11 @@ Fremmednøkler brukes for å mplementere forholdene over:
   - Låseinformasjon lagres i **Lås**.
   - Kundeinformasjon lagres i **Kunde**.
   - Utleieinformasjon lagres i **Utleie**.
-- For eksempel lagres ikke stasjonsinformasjonen direkte i **Sykkel**, men utdeles indirekte gjennom relasjonen mellom **Sykkel** --> **Lås** --> **Stasjon**. Dette reduserer redundans og hindrer oppdateringsanomalier. 
+- Start- og sluttstasjon lagres som fremmednøkler i Utleie, noe som bevarer historikk uten å lagre stasjonsinformasjon som tekst. Dette reduserer redundans og hindrer oppdateringsanomalier.
+- Selv om både start_stasjon_id og slutt_stasjon_id refererer til samme entitet (Stasjon),
+  representerer de ulike roller i utleieprosessen. Dette skaper derfor ikke
+  transitive avhengigheter, men beskriver to separate relasjoner til samme entitet.
+
 
 **Eventuelle justeringer:**
 
