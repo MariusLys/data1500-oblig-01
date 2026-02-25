@@ -190,20 +190,29 @@ Fremmednøkler brukes for å mplementere forholdene over:
 
 **Vurdering av 1. normalform (1NF):**
 
-[Skriv ditt svar her - forklar om datamodellen din tilfredsstiller 1NF og hvorfor]
+- Datamodellen tilfredstiller **første normalform (1NF)** fordi alle tabeller inneholder atomiske attributter. Det betyr at hvert felt kun inneholder èn verdi, og at det ikke finnes repeterende grupper eller verdifelt.
+- For eksempel lagres kundens informasjon som separate attributter (``fornavn``, ``etternavn``, ``mobilnummer``, ``epost``) og ikke som sammensatte verdier. Tilsvarende lagres informasjon som sykler, låser og utleier i egne kolonner uten gjentakende attributter. 
+- Alle entiteter har også definert primærnøkler som identifiserer hver rad som entydig.
 
 **Vurdering av 2. normalform (2NF):**
 
-[Skriv ditt svar her - forklar om datamodellen din tilfredsstiller 2NF og hvorfor]
+- Datamodellen tilfredstiller **andre normalform (2NF)** fordi alle ikke-nøkkelattributter er fullt funksjonelt avhengig av hele primærnøkkelen.
+- Alle tabeller bruker èn enkelt attributt som primærnøkkel (``kunde_id``, ``sykkel_id``, ``utleie_id``, osv..), og det finnes derfor ingen delvise avhengigheter.
+- Eksempelvis er attributtene i **Utleie** (``utlevert_tidspunkt``, ``leiebelop``) avhengige av hele primærnøkkelen ``utleie_id``, og ikke av deler av en sammensatt nøkkel.
 
 **Vurdering av 3. normalform (3NF):**
 
-[Skriv ditt svar her - forklar om datamodellen din tilfredsstiller 3NF og hvorfor]
+- Datamodellen tilfredstiller **tredje normalform (3NF)** fordi det ikke finnes transitive avhengigheter mellom ikke-nøkkelattributter.
+- Informasjon som beskriver ulike konsepter er delt opp i egne entiteter:
+  - Stasjonsinformasjonen lagres i **Stasjon**.
+  - Låseinformasjon lagres i **Lås**.
+  - Kundeinformasjon lagres i **Kunde**.
+  - Utleieinformasjon lagres i **Utleie**.
+- For eksempel lagres ikke stasjonsinformasjonen direkte i **Sykkel**, men utdeles indirekte gjennom relasjonen mellom **Sykkel** --> **Lås** --> **Stasjon**. Dette reduserer redundans og hindrer oppdateringsanomalier. 
 
 **Eventuelle justeringer:**
 
-[Skriv ditt svar her - hvis modellen ikke var på 3NF, forklar hvilke justeringer du har gjort]
-
+- Datamodellen tilfredstiller allerede kravene til **3NF**, så det trengs ikke å gjøre ytterlige justeringer.
 ---
 
 ## Del 2: Database-implementering
