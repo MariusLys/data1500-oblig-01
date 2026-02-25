@@ -1,10 +1,10 @@
 # Besvarelse - Refleksjon og Analyse
 
-**Student:** [Ditt navn]
+**Student:** Marius Lysenstøen
 
-**Studentnummer:** [Ditt studentnummer]
+**Studentnummer:** malys3373
 
-**Dato:** [Innleveringsdato]
+**Dato:** 1. mars 2026
 
 ---
 
