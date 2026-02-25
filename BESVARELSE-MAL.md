@@ -20,9 +20,11 @@ Kunde, Stasjon, Sykkel, Lås, Utleie
 
 - Kunde: kunde_id, fornavn, etternavn, mobilnummer, epost 
 - Stasjon: stasjon_id, navn, adresse, lengdegrad, breddegrad
-- Sykkel: sykkel_id, stasjon_id, laas_id, aktiv
-- Lås: laas_id, aktiv
+- Sykkel: sykkel_id, laas_id, status
+- Lås: laas_id, stasjon_id, posisjon_nr, aktiv
 - Utleie: utleie_id, kunde_id, sykkel_id, utlevert_tidspunkt, innlevert_tidspunkt, leiebelop
+
+En sykkel er koblet til en lås (laas_id), og låsen er igjen koblet til en stasjon. Dermed kan hvilken stasjon sykkelen befinner seg på utledes indirekte via låsen, noe som reduserer redundans i databasen. Når en sykkel er utleid vil laas_id være NULL, noe som indikerer at sykkelen ikke er parkert ved en stasjon.
 
 ---
 
@@ -31,7 +33,7 @@ Kunde, Stasjon, Sykkel, Lås, Utleie
 **Valgte datatyper og begrunnelser:**
 
 - Kunde: 
-  - kunde_id: **SERIAL** - Denne får en surrogatønkkel, fordi det er stabilt og effektivt i relasjoner. 
+  - kunde_id: **SERIAL** - Denne får en surrogatnøkkel, fordi det er stabilt og effektivt i relasjoner. 
   - fornavn: **varchar(50)** - Dette er et kort tekstfelt, med en begrenset lengde.
   - etternavn: **varchar(50)** - Samme begrunnelse som fornavn. 
   - mobilnummer: **varchar(15)** - Siden telefonnummere kan inneholde landskoder, f.eks. "+47", og ledende nuller. 
@@ -48,20 +50,19 @@ Kunde, Stasjon, Sykkel, Lås, Utleie
   - laas_id: **SERIAL** - Surrogatnøkkel
   - stasjon_id: **BIGINT** - Denne blir en FK til stasjon.
   - posisjon_nr: **INTEGER** - Plass eller nummer på låsen på stasjonen.
-  - aktiv: **BOOLEAN** - Om den er aktiv eller utleid (True eller false).
+  - aktiv: **BOOLEAN** - Om låsen er i drift eller ikke (True eller false).
 
 - Sykkel:
   - sykkel_id: **SERIAL** - Surrogatnøkkel.
-  - stasjon_id: **BIGINT** - FK til stasjon når sykkelen står parkert (NULL når den er utleid).
   - laas_id: **BIGINT** - FK til lås når sykkelen er låst (NULL når den er utleid).
-  - aktiv: **varchar(20)** - For en enkel status, som "tilgjengelig", "utleid", osv..
+  - status: **varchar(20)** - For en enkel status, som "tilgjengelig", "utleid", osv..
 
 - Utleie:
   - utleie_id: **SERIAL** - Surrogatnøkkel.
   - kunde_id: **BIGINT** - Blir FK til kunde.
   - sykkel_id: **BIGINT** - Blir FK til sykkel.
   - utlevert_tidspunkt: **TIMESTAMPTZ** - Dette blir et tidsstempel med tidssone.
-  - innlevert_tidspunkt: **TIMESTAMPTZ** - Null når sykkeen ikke er levert ennå.
+  - innlevert_tidspunkt: **TIMESTAMPTZ** - NULL når sykkelen ikke er levert ennå.
   - leiebelop: **NUMERIC(10,2)** - For penger med 2 desimaler. Dette unngår avrundingsfeil.
 
 **`CHECK`-constraints:**
@@ -92,14 +93,15 @@ Sykkel:
 ```
 
 ```
-Uleie:
+Utleie:
   - CHECK (innlevert_tidspunkt IS NULL OR innlevert_tidspunkt > utlevert_tidspunkt) - Innlevering etter utleie.
   - CHECK (leiebelop IS NULL OR leiebelop >= 0) - Leiebeløpet kan ikke være negativt.
 ```
 
 
 **ER-diagram:**
-- Er-diagram med entiteter og attributter:
+- Er-diagram med entiteter og attributter: 
+  - Mermaid støtter ikke alltid full PostgreSQL-syntaks for datatyper, derfor vises enkelte typer forenklet i diagrammet.  
 ![img_1.png](img_1.png)
 ---
 
@@ -107,32 +109,81 @@ Uleie:
 
 **Valgte primærnøkler og begrunnelser:**
 
-[Skriv ditt svar her - forklar hvilke primærnøkler du har valgt for hver entitet og hvorfor]
+- Kunde:
+  - Primærnøkkel: ``kunde_id``
+  - Begrunnelse: Telefonnummer og epost kunne blitt brukt som naturlige nøkler, men det kan være uheldig ettersom at de kan endres over tid. Derfor velger vi en stabil surrogatnøkkel.
+
+- Stasjon:
+  - Primærnøkkel: ``stasjon_id``
+  - Begrunnelse: Navn eller adresse er ikke garantert unike og de kan endres. Derfor er en generert ID sikret for en entydig identifikasjon.
+
+- Lås:
+  - Primærnøkkel: ``laas_id``
+  - Begrunnelse: Hver lås må identifiseres individuelt siden sykler kobles til en spesifikk lås. ``posisjon_nr`` er kun unikt for en spesiell stasjon og kan derfor ikke brukes alene.
+
+- Sykkel:
+  - Primærnøkkel: ``sykkel_id``
+  - Begrunnelse: Denne casen spesifiserer at hver sykkel har en unik ID, som naturlig brukes som primærnøkkel.
+  
+- Utleie:
+  - Primærnøkkel: ``utleie_id``
+  - Begrunnelse: En kunde kan leie samme sykkel flere ganger. Derfor må hver utleiehendele ha en egen unik identifikator.
 
 **Naturlige vs. surrogatnøkler:**
 
-[Skriv ditt svar her - diskuter om du har brukt naturlige eller surrogatnøkler og hvorfor]
+- I denne datamodellen er det hovedsaklig brukt **surrogatnøkler** som primærnøkler.
+- Naturlige nøkler som telefonnummer, epost eller stasjonsnavn kunne i enkelte tilfeller blitt brukt, men disse kan endres eller være ikke-unike. Bruk av surrogatnøkler gir derfor:
+  - stabile identifikatorer
+  - enklere referanser via FKs
+  - redusert risiko for oppdateringsproblemer
+  - bedre dataintegritet
 
 **Oppdatert ER-diagram:**
 
-[Legg inn mermaid-kode eller eventuelt en bildefil fra `mermaid.live` her]
+- Oppdetert ER-diagram med Primærnøkler:
 
+![img_2.png](img_2.png)
 ---
 
 ### Oppgave 1.4: Forhold og fremmednøkler
 
 **Identifiserte forhold og kardinalitet:**
 
-[Skriv ditt svar her - list opp alle forholdene mellom entitetene og angi kardinalitet]
+1. Stasjon - Lås
+   -  Kardinalitet: **en-til-mange (1:N)**
+   - Èn stasjon har mange låser, og hver lås tilhører næyaktig èn stasjon.
+2. Lås - Sykkel
+   - Kardinalitet: **en-til-null-eller-en (1:0..1)**
+   - En lås kam ha maks 1 sykkel parkert i seg om gangen.
+   - En sykkel er enten parkert i en lås, eller utleid.
+3. Kunde - Utleie
+   - Kardinalitet: **en-til-mange (1:N)**
+   - En kunde kan ha mange utleiere, men hver utleie tilhører nøyaktig èn kunde.
+4. Sykkel - Utleie
+   - Kardinalitet: **en-til-mange (1:N)**
+   - En sykkel kan inngå i mange utleier over tid, men hver utleie gjelder nøyaktig èn sykkel.
+- **mange-til-mange (M:N)**: Kunde - Sykkel
+   - En kunde kan leie mange sykler over tid, og en sykkel kan leies av mange kunder over tid. 
+   - Dette er et **mange-til-mange-forhold**, og det løses opp ved hjelp av den assosiative entiteten **Utleie**, som kobler sammen kunde og sykkel og lagrer tidsintervall og leiebeløp.
+
 
 **Fremmednøkler:**
 
-[Skriv ditt svar her - list opp alle fremmednøklene og forklar hvordan de implementerer forholdene]
+Fremmednøkler brukes for å mplementere forholdene over:
+1. ``LAAS.stasjon_id`` --> ``STASJON.stasjon_id``
+   - Implementerer forholdet **Stasjon (1) - (N) Lås**
+2. ``SYKKEL.laas_id`` --> ``LAAS.laas_id`` (kan være NULL)
+   - Implementerer forholdet mellom Lås og sykkel.
+   - ``NULL`` betyr at sykkelen er utleid og dermed ikke står i noen lås eller stasjon.
+3. ``UTLEIE.kunde_id``--> ``KUNDE.kunde_id``
+   - Implementerer forholdet **Kunde (1) - (N) Utleie**.
+4. ``UTLEIE.sykkel_id`` --> ``SYKKEL.sykkel_id``
+   - Implementerer forholdet **Sykkel(1) - (N) Utleie**.
 
 **Oppdatert ER-diagram:**
 
-[Legg inn mermaid-kode eller eventuelt en bildefil fra `mermaid.live` her]
-
+- Oppdatert ER-diagram med FKs:
+![img_3.png](img_3.png)
 ---
 
 ### Oppgave 1.5: Normalisering
