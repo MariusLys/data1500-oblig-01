@@ -233,13 +233,15 @@ Fremmednøkler brukes for å mplementere forholdene over:
 
 [Bekreft at du har lagt SQL-skriptet i `init-scripts/01-init-database.sql`]
 
+- Jeg bekrefter at SQL-skriptet er laget.
+
 **Antall testdata:**
 
-- Kunder: [antall]
-- Sykler: [antall]
-- Sykkelstasjoner: [antall]
-- Låser: [antall]
-- Utleier: [antall]
+- Kunder: 5
+- Sykler: 100
+- Sykkelstasjoner: 5
+- Låser: 100
+- Utleier: 50
 
 ---
 
