@@ -520,21 +520,39 @@ dataintegritet. Sammen gir dette et robust og sikkert flerlags-system.
 
 **Hva har du lært så langt i emnet:**
 
-[Skriv din refleksjon her - diskuter sentrale konsepter du har lært]
+- Gjennom arbeidet med dette emnet har jeg fått en bedre forståelse av hvordan relasjonsdatabaser er bygget opp og hvordan 
+data organiseres på en strukturert måte. Jeg har spesielt lært betydningen av datamodellering, primærnøkler og fremmednøkler, 
+samt hvordan normalisering bidrar til å redusere redundans og sikre konsistente data.
+
+- Jeg har også fått mer praktisk erfaring med SQL og hvordan databaser implementeres i praksis, blant annet gjennom opprettelse 
+av tabeller, constraints og relasjoner mellom ulike entiteter.
 
 **Hvordan har denne oppgaven bidratt til å oppnå læringsmålene:**
 
-[Skriv din refleksjon her - koble oppgaven til læringsmålene i emnet]
+- Denne oppgaven har gitt en helhetlig forståelse av prosessen fra analyse av et case til ferdig implementert database. 
+Jeg har gått gjennom alle stegene fra å identifisere entiteter og relasjoner, til å implementere databasen i PostgreSQL 
+og skrive spørringer mot den.
+
+- Arbeidet med tilgangskontroll og views har også gitt bedre innsikt i hvordan databaser kan brukes på en sikker måte, og hvordan ulike brukere kan få begrenset tilgang til data.
 
 Se oversikt over læringsmålene i en PDF-fil i Canvas https://oslomet.instructure.com/courses/33293/files/folder/Plan%20v%C3%A5ren%202026?preview=4370886
 
 **Hva var mest utfordrende:**
 
-[Skriv din refleksjon her - diskuter hvilke deler av oppgaven som var mest krevende]
+- Det mest utfordrende i oppgaven var nok å designe en god datamodell i starten. Det var spesielt krevende å avgjøre 
+- hvilke attributter som skulle ligge i hvilke tabeller, og hvordan relasjonene mellom entitetene skulle modelleres 
+- riktig. Jeg har startet oppgaven på nytt et par ganger..
+
+- I tillegg var det utfordrende å forstå hvordan tilgangsstyring med roller og views fungerer i praksis, siden dette var nye konsepter for meg.
+
 
 **Hva har du lært om databasedesign:**
 
-[Skriv din refleksjon her - reflekter over prosessen med å designe en database fra bunnen av]
+- Gjennom oppgaven har jeg lært hvor viktig det er å planlegge databasedesign før implementasjon. En godt normalisert 
+database gjør det enklere å vedlikeholde data og reduserer risikoen for feil og inkonsistens.
+
+- Jeg har også fått forståelse for hvordan teoretiske begreper fra pensum, som normalformer og dataintegritet, faktisk 
+brukes i utvikling av reelle systemer.
 
 ---
 
