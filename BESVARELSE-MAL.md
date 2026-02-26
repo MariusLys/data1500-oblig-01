@@ -390,31 +390,46 @@ realistisk estimeres til:
 
 **Problem 1: Redundans**
 
-[Skriv ditt svar her - gi konkrete eksempler fra CSV-filen som viser redundans]
+- I CSV-filen blir informasjon gjentatt flere ganger. F.eks. forekommer kunden **Ole Hansen** flere ganger. Den samme kundeinformasjonen
+lagres for hver utleie kunden gjennomfører. Tilsvarende gjentas også informasjon om stasjoner **(Sentrum stasjon og Karl Johans gate 1 Oslo)**. Dette fører til unødvendig duplisering av data og økt lagringsbehov.
 
 **Problem 2: Inkonsistens**
 
-[Skriv ditt svar her - forklar hvordan redundans kan føre til inkonsistens med eksempler]
+- Når samme informasjon lagres flere steder, kan inkonsistens oppstå dersom dataene endres. Dersom "Ole Hansen" endrer mobilnummer, må alle rader hvor kunden forekommer oppdaters. Hvis en rad ikke oppdateres vil datasettet
+inneholde ulike verdier fpr samme kunde. 
+- Dette kan føre til at databasen ikke lenger representere en gyldig sannhet. 
+- En relasjonsdatabase reduserer denne risikoen ved å lagre kundedata ett sted og referere til disse via nøkler. 
 
 **Problem 3: Oppdateringsanomalier**
 
-[Skriv ditt svar her - diskuter slette-, innsettings- og oppdateringsanomalier]
+- **Oppdateringanomali:**
+  - Endring av informasjon, som kundens epost eller stasjonsadresse, må oppdateres i mange rader.
+- **Innsettingsanomali:**
+  - Det er vanskelig p registrere nye kunder eller sykler uten samtidig å registrere en utleie.
+- **Sletteanomali:**
+  - Hvis den eneste utleien til en kunde slettes, vil også all informasjon om kunden forsvinne fra datasettet.
 
 **Fordeler med en indeks:**
 
-[Skriv ditt svar her - forklar hvorfor en indeks ville gjort spørringen mer effektiv]
+- Ved søk etter alle utleier for en bestemt sykkel eller kunde må en flat CSV-fil leses sekvensielt fra start til slutt.
+- I en relasjonsdatabase kan man opprette en indeks. Databasen kan da bruke indeksen til å finne relevante rader direkte uten å lese hele
+tabellen, noe som gir betydelig mer ytelse. 
 
 **Case 1: Indeks passer i RAM**
 
-[Skriv ditt svar her - forklar hvordan indeksen fungerer når den passer i minnet]
+- Når indeksen får plass i RAM, må deler av indeksen leses fra disk. Datastrukturer som B+-trær gjør det mulig å finne
+relevante rader med logaritmisk søketid, noe som er veldig effektivt.
 
 **Case 2: Indeks passer ikke i RAM**
 
-[Skriv ditt svar her - forklar hvordan flettesortering kan brukes]
+- Hvis indeksen er større enn tilgjengelig RAM, må deler av indeksen leses fra disk.  Databasesystemet forsøker da å minimere diskoperasjoner ved hjelp av caching og blokkvis
+  lesing. Ved store datamengder kan teknikker som ekstern flettesortering benyttes.
 
 **Datastrukturer i DBMS:**
 
-[Skriv ditt svar her - diskuter B+-tre og hash-indekser]
+- Relasjonsdatabaser benytter ofte disse datastruktirene:
+  - **B+-tre-indekser**, som gir effektiv støtte for både likhets- og områdesøk.
+  - **Hash-indekser**, som gir svært raske likhetsoppslag, men ikke egner seg like godt for intervall- eller sorteringsspørringer.
 
 ---
 
@@ -422,7 +437,9 @@ realistisk estimeres til:
 
 **Foreslått datastruktur:**
 
-[Skriv ditt svar her - f.eks. heap-fil, LSM-tree, eller annen egnet datastruktur]
+- En egnet datastruktur for logging av hendelser i databasen er en **LSM-tree (Log-Structured Merge-Tree)**.
+- Logging av hendelser som innlogginger, innsettinger, og oppdateringer, består hovedsaklig av kontinuerlige skriveoperasjoner hvor nye
+hendelser legges til fortløpende. LSM-tree er spesielt utviklet for sånne arbeidsbelastninger.
 
 **Begrunnelse:**
 
