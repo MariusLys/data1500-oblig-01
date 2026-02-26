@@ -445,11 +445,15 @@ hendelser legges til fortløpende. LSM-tree er spesielt utviklet for sånne arbe
 
 **Skrive-operasjoner:**
 
-[Skriv ditt svar her - forklar hvorfor datastrukturen er egnet for mange skrive-operasjoner]
+- Ved logging skjer det veldig mangge skriveoperasjoner, mens eksisterende data sjelden endres. En LSM-tree er optimalt
+for dette ved at nye data først skrives sekvensielt til minne og deretter lagres på disk i større blokker.
+- Dette gir færre tilfeldige diskoperasjoner, høy skriveytelse og effektiv håndtering av store datamengder.
 
 **Lese-operasjoner:**
 
-[Skriv ditt svar her - forklar hvordan datastrukturen håndterer sjeldne lese-operasjoner]
+- Leseoperasjoner på loggdata skjer vanligvis sjeldnere enn skriveoperasjoner, for eksempel ved revisjon eller feilsøking.
+- LSM-tree håndterer lesing ved å kombinere data fra flere lagrede filer på disk. Selv om leseoperasjoner kan være noe tregere 
+enn i strukturer optimalisert for lesing, er dette en akseptabel avveining fordi logging primært er skriveintensivt.
 
 ---
 
