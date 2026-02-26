@@ -1,14 +1,11 @@
 -- ============================================================================
 -- DATA1500 - Oblig 1: Arbeidskrav I våren 2026
 -- Initialiserings-skript for PostgreSQL
--- Fil: init-scripts/01-init-database.sql
 -- ============================================================================
 
+-- Opprett grunnleggende tabeller
 BEGIN;
 
--- ---------------------------------------------------------------------------
--- Rydd opp (i riktig rekkefølge pga. FKs)
--- ---------------------------------------------------------------------------
 DROP TABLE IF EXISTS utleie CASCADE;
 DROP TABLE IF EXISTS sykkel CASCADE;
 DROP TABLE IF EXISTS laas CASCADE;
@@ -20,32 +17,32 @@ DROP TABLE IF EXISTS kunde CASCADE;
 -- ---------------------------------------------------------------------------
 
 CREATE TABLE kunde (
-                       kunde_id      BIGSERIAL PRIMARY KEY,
-                       fornavn       VARCHAR(50)  NOT NULL CHECK (length(trim(fornavn)) > 0),
-                       etternavn     VARCHAR(50)  NOT NULL CHECK (length(trim(etternavn)) > 0),
-                       mobilnummer   VARCHAR(15)  NOT NULL CHECK (mobilnummer ~ '^\+?[0-9]{8,15}$'),
-  epost         VARCHAR(254) NOT NULL CHECK (epost ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$')
+    kunde_id      BIGSERIAL PRIMARY KEY,
+    fornavn       VARCHAR(50)  NOT NULL CHECK (length(trim(fornavn)) > 0),
+    etternavn     VARCHAR(50)  NOT NULL CHECK (length(trim(etternavn)) > 0),
+    mobilnummer   VARCHAR(15)  NOT NULL CHECK (mobilnummer ~ '^\+?[0-9]{8,15}$'),
+    epost         VARCHAR(254) NOT NULL CHECK (epost ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$')
 );
 
 CREATE TABLE stasjon (
-                         stasjon_id BIGSERIAL PRIMARY KEY,
-                         navn       VARCHAR(100) NOT NULL,
-                         adresse    VARCHAR(200) NOT NULL
+    stasjon_id BIGSERIAL PRIMARY KEY,
+    navn       VARCHAR(100) NOT NULL,
+    adresse    VARCHAR(200) NOT NULL
 );
 
 CREATE TABLE laas (
-                      laas_id      BIGSERIAL PRIMARY KEY,
-                      stasjon_id   BIGINT NOT NULL REFERENCES stasjon(stasjon_id),
-                      posisjon_nr  INTEGER NOT NULL CHECK (posisjon_nr > 0),
-                      aktiv        BOOLEAN NOT NULL DEFAULT TRUE
+    laas_id      BIGSERIAL PRIMARY KEY,
+    stasjon_id   BIGINT NOT NULL REFERENCES stasjon(stasjon_id),
+    posisjon_nr  INTEGER NOT NULL CHECK (posisjon_nr > 0),
+    aktiv        BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE sykkel (
-                        sykkel_id     BIGSERIAL PRIMARY KEY,
-                        laas_id       BIGINT NULL REFERENCES laas(laas_id),
-                        status        VARCHAR(20) NOT NULL CHECK (status IN ('tilgjengelig','utleid','service')),
-                        modell        VARCHAR(100) NOT NULL,
-                        innkjopsdato  DATE NOT NULL
+    sykkel_id     BIGSERIAL PRIMARY KEY,
+    laas_id       BIGINT NULL REFERENCES laas(laas_id),
+    status        VARCHAR(20) NOT NULL CHECK (status IN ('tilgjengelig','utleid','service')),
+    modell        VARCHAR(100) NOT NULL,
+    innkjopsdato  DATE NOT NULL
 );
 
 -- En lås kan maks ha én sykkel (men mange sykler kan være "utleid" med NULL laas_id)
@@ -54,39 +51,34 @@ CREATE UNIQUE INDEX sykkel_unique_laas
     WHERE laas_id IS NOT NULL;
 
 CREATE TABLE utleie (
-                        utleie_id          BIGSERIAL PRIMARY KEY,
-                        kunde_id           BIGINT NOT NULL REFERENCES kunde(kunde_id),
-                        sykkel_id          BIGINT NOT NULL REFERENCES sykkel(sykkel_id),
-                        start_stasjon_id   BIGINT NOT NULL REFERENCES stasjon(stasjon_id),
-                        slutt_stasjon_id   BIGINT NOT NULL REFERENCES stasjon(stasjon_id),
-                        utlevert_tidspunkt TIMESTAMPTZ NOT NULL,
-                        innlevert_tidspunkt TIMESTAMPTZ NULL,
-                        leiebelop          NUMERIC(10,2) NULL CHECK (leiebelop IS NULL OR leiebelop >= 0),
-                        CHECK (innlevert_tidspunkt IS NULL OR innlevert_tidspunkt > utlevert_tidspunkt)
+    utleie_id          BIGSERIAL PRIMARY KEY,
+    kunde_id           BIGINT NOT NULL REFERENCES kunde(kunde_id),
+    sykkel_id          BIGINT NOT NULL REFERENCES sykkel(sykkel_id),
+    start_stasjon_id   BIGINT NOT NULL REFERENCES stasjon(stasjon_id),
+    slutt_stasjon_id   BIGINT NOT NULL REFERENCES stasjon(stasjon_id),
+    utlevert_tidspunkt TIMESTAMPTZ NOT NULL,
+    innlevert_tidspunkt TIMESTAMPTZ NULL,
+    leiebelop          NUMERIC(10,2) NULL CHECK (leiebelop IS NULL OR leiebelop >= 0),
+    CHECK (innlevert_tidspunkt IS NULL OR innlevert_tidspunkt > utlevert_tidspunkt)
 );
 
--- ---------------------------------------------------------------------------
--- Del 2) Testdata
--- ---------------------------------------------------------------------------
-
--- 2.1 Kunder (minst 5)
+-- Sett inn testdata
 INSERT INTO kunde (fornavn, etternavn, mobilnummer, epost) VALUES
-                                                               ('Ole',  'Hansen',    '+4791234567', 'ole.hansen@example.com'),
-                                                               ('Kari', 'Olsen',     '+4792345678', 'kari.olsen@example.com'),
-                                                               ('Per',  'Andersen',  '+4793456789', 'per.andersen@example.com'),
-                                                               ('Lise', 'Johansen',  '+4794567890', 'lise.johansen@example.com'),
-                                                               ('Anna', 'Nilsen',    '+4796789012', 'anna.nilsen@example.com');
+    ('Ole',  'Hansen',    '+4791234567', 'ole.hansen@example.com'),
+    ('Kari', 'Olsen',     '+4792345678', 'kari.olsen@example.com'),
+    ('Per',  'Andersen',  '+4793456789', 'per.andersen@example.com'),
+    ('Lise', 'Johansen',  '+4794567890', 'lise.johansen@example.com'),
+    ('Anna', 'Nilsen',    '+4796789012', 'anna.nilsen@example.com');
 
--- 2.2 Stasjoner (minst 5) – legger inn 5 som i CSV-en
+
 INSERT INTO stasjon (navn, adresse) VALUES
-                                        ('Sentrum Stasjon',       'Karl Johans gate 1 Oslo'),
-                                        ('Universitetet Stasjon', 'Blindern Oslo'),
-                                        ('Grünerløkka Stasjon',   'Thorvald Meyers gate 10 Oslo'),
-                                        ('Aker Brygge Stasjon',   'Stranden 1 Oslo'),
-                                        ('Majorstuen Stasjon',    'Bogstadveien 50 Oslo');
+    ('Sentrum Stasjon',       'Karl Johans gate 1 Oslo'),
+    ('Universitetet Stasjon', 'Blindern Oslo'),
+    ('Grünerløkka Stasjon',   'Thorvald Meyers gate 10 Oslo'),
+    ('Aker Brygge Stasjon',   'Stranden 1 Oslo'),
+    ('Majorstuen Stasjon',    'Bogstadveien 50 Oslo');
 
--- 2.3 Låser (minst 100 = 20 per stasjon)
--- Lager 20 låser per stasjon_id 1..5 => 100 totalt
+
 INSERT INTO laas (stasjon_id, posisjon_nr, aktiv)
 SELECT s.stasjon_id,
        p.posisjon_nr,
@@ -95,8 +87,7 @@ FROM stasjon s
          CROSS JOIN generate_series(1, 20) AS p(posisjon_nr)
 ORDER BY s.stasjon_id, p.posisjon_nr;
 
--- 2.4 Sykler (minst 100)
--- Viktig: hver sykkel får unik laas_id 1..100 (ingen duplikater)
+
 INSERT INTO sykkel (laas_id, status, modell, innkjopsdato)
 SELECT
     gs AS laas_id,
@@ -117,8 +108,6 @@ UPDATE sykkel SET modell='Urban Cruiser',  innkjopsdato=DATE '2023-05-05' WHERE 
 UPDATE sykkel SET modell='City Bike Pro',  innkjopsdato=DATE '2023-01-20' WHERE sykkel_id=5;
 UPDATE sykkel SET modell='EcoBike 3000',   innkjopsdato=DATE '2023-06-01' WHERE sykkel_id=6;
 
--- 2.5 Utleier (minst 50)
--- Lager 50 utleier. Noen blir "aktive" (innlevert NULL) og da settes sykkel til utleid + laas_id NULL.
 INSERT INTO utleie (
     kunde_id, sykkel_id, start_stasjon_id, slutt_stasjon_id,
     utlevert_tidspunkt, innlevert_tidspunkt, leiebelop
@@ -139,7 +128,7 @@ END AS innlevert_tidspunkt,
 END AS leiebelop
 FROM generate_series(1, 50) AS gs;
 
--- Sett status/laas_id på sykler som har aktive utleier (innlevert NULL)
+-- Setter status/laas_id på sykler som har aktive utleier (innlevert NULL)
 UPDATE sykkel s
 SET status = 'utleid', laas_id = NULL
 WHERE EXISTS (
@@ -149,6 +138,38 @@ WHERE EXISTS (
       AND u.innlevert_tidspunkt IS NULL
 );
 
+-- DBA setninger (rolle: kunde, bruker: kunde_1)
+-- Oppretter roller og brukere
+CREATE ROLE kunde;
+CREATE USER kunde_1 WITH PASSWORD 'kunde123';
+GRANT kunde TO kunde_1;
+
+GRANT USAGE ON SCHEMA public TO kunde;
+
+GRANT SELECT ON TABLE
+    kunde,
+    sykkel,
+    stasjon,
+    laas,
+    utleie
+    TO kunde;
+
+-- VIEW
+CREATE VIEW mine_utleier AS
+SELECT u.*
+FROM utleie u
+JOIN kunde k on u.kunde_id = k.kunde_id
+WHERE k.epost = CURRENT_USER;
+
+--GRANT/REWOKE
+GRANT SELECT ON mine_utleier TO kunde;
+
+
+-- Eventuelt: Opprett indekser for ytelse
+
 COMMIT;
 
+
+
+-- Vis at initialisering er fullført (kan se i loggen fra "docker-compose log"
 SELECT 'Database initialisert!' as status;

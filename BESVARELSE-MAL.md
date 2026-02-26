@@ -249,7 +249,9 @@ Fremmednøkler brukes for å mplementere forholdene over:
 
 **Dokumentasjon av vellykket kjøring:**
 
-[Skriv ditt svar her - f.eks. skjermbilder eller output fra terminalen som viser at databasen ble opprettet uten feil]
+- Her ble databasene opprettet uten problem:
+
+![img_3.png](img_3.png)
 
 **Spørring mot systemkatalogen:**
 
@@ -264,7 +266,12 @@ ORDER BY table_name;
 **Resultat:**
 
 ```
-[Skriv resultatet av spørringen her - list opp alle tabellene som ble opprettet]
+ - kunde
+ - laas
+ - stasjon 
+ - sykkel
+ - utleie
+ (5 rows)
 ```
 
 ---
@@ -276,19 +283,28 @@ ORDER BY table_name;
 **SQL for å opprette rolle:**
 
 ```sql
-[Skriv din SQL-kode for å opprette rollen 'kunde' her]
+CREATE ROLE kunde;
 ```
 
 **SQL for å opprette bruker:**
 
 ```sql
-[Skriv din SQL-kode for å opprette brukeren 'kunde_1' her]
+CREATE USER kunde_1 WITH PASSWORD 'kunde123';
+GRANT kunde TO kunde_1;
 ```
 
 **SQL for å tildele rettigheter:**
 
 ```sql
-[Skriv din SQL-kode for å tildele rettigheter til rollen her]
+GRANT USAGE ON SCHEMA public TO kunde;
+
+GRANT SELECT ON TABLE
+    kunde,
+    sykkel,
+    stasjon,
+    laas,
+    utleie
+    TO kunde;
 ```
 
 ---
