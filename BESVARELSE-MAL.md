@@ -338,15 +338,49 @@ WHERE k.epost = CURRENT_USER;
 
 **Totalt antall utleier per år:**
 
-[Skriv din utregning her]
+- Høysesong: 
+  - Mai-September = 5 måneder
+  - 20_000 * 5 = **100_000 utleier**
+- Mellomsesong:
+   - Mars, April, Oktober, November = 4 måneder
+   - 5_000 * 4 = **20_000 utleier**
+- Lavsesong:
+  - Desember-februar = 3 måneder
+  - 500 * 3 = **1_500 utleier**
+
+```
+100_000 + 20_000 + 1_500 = 121_500 utleier
+```
 
 **Estimat for lagringskapasitet:**
 
-[Skriv din utregning her - vis hvordan du har beregnet lagringskapasiteten for hver tabell]
+| Kolonne                | Datatype        | Estimert størrelse |
+|------------------------|-----------------|--------------------|
+| `utleie_id`              | BIGINT          | 8 bytes            |
+| `kunde_id`               | BIGINT          | 8 bytes            |
+| `sykkel_id`              | BIGINT          | 8 bytes            |
+| `start_stasjon_id`       | BIGINT          | 8 bytes            |
+| `slutt_stasjon_id`       | BIGINT          | 8 bytes            |
+| `utlevert_tidspunkt`     | TIMESTAMPTZ     | 8 bytes            |
+| `innlevert_tidspunkt`    | TIMESTAMPTZ     | 8 bytes            |
+| `leiebelop`              | NUMERIC(10,2)   | ca. 16 bytes       |
+
+- Dette vil gi et grovt estimat på ca. **72 bytes per rad (datafelt).**
+- I tillegg må det legges til overhead, som utgjør ca. **30-35 bytes.**
+- Dette gir oss et estimat som tilsier at èn rad i tabellen ``utleie`` blir ca. **100-110 bytes pr. rad**. 
 
 **Totalt for første år:**
 
-[Skriv ditt estimat her]
+- Basert på totalt antall utleier:
+```
+121_500 * 104 = ca. 12_635_000 bytes, som gir os ca. 12.6 MB.
+
+Når indekser (PK og FK), samt generell databaseoverhead tas med i 
+beregningen kan det totale lagringsbehovet bli litt større, og 
+realistisk estimeres til:
+
+= ca. 15-20 MB første driftsår.
+```
 
 ---
 
