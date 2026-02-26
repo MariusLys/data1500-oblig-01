@@ -10,6 +10,12 @@ select nspname as schema_name from pg_catalog.pg_namespace;
 
 -- Del 5: SQL-spørringer
 
+    -- Bruker denne for å kjøre spørringene:
+    ```
+    docker-compose exec postgres \
+    psql -U admin -d oblig01
+    ```
+
 
 -- Oppgave 5.1: Vis alle sykler
 SELECT *
