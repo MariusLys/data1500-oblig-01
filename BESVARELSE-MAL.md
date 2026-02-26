@@ -562,6 +562,8 @@ brukes i utvikling av reelle systemer.
 
 [Bekreft at du har lagt SQL-spørringene i `test-scripts/queries.sql`]
 
+- Jeg bekrefter at dette er utført.
+
 
 **Eventuelle feil og rettelser:**
 
