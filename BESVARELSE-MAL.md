@@ -461,23 +461,58 @@ enn i strukturer optimalisert for lesing, er dette en akseptabel avveining fordi
 
 **Hvor bør validering gjøres:**
 
-[Skriv ditt svar her - argumenter for validering i ett eller flere lag]
+Validering av brukerinput bør utføres i flere lag i systemet, inkludert nettleseren, applikasjonslaget og databasen. 
+Hvert lag har ulike ansvarsområder og bidrar til både bedre brukeropplevelse og høyere datasikkerhet.
 
 **Validering i nettleseren:**
 
-[Skriv ditt svar her - diskuter fordeler og ulemper]
+Validering i nettleseren (klientsiden) gir rask tilbakemelding til brukeren før data sendes til serveren. Dette kan for 
+eksempel være kontroll av at obligatoriske felt er fylt ut, eller at e-post og telefonnummer har riktig format.
+
+**Fordeler:**
+- Rask respons til brukeren
+- Reduserer unødvendige forespørsler til serveren
+
+**Ulemper:**
+- Kan enkelt omgås dersom brukeren manipulerer forespørselen
+- Kan derfor ikke brukes som eneste sikkerhetsmekanisme
 
 **Validering i applikasjonslaget:**
 
-[Skriv ditt svar her - diskuter fordeler og ulemper]
+Applikasjonslaget (for eksempel en Java- eller webapplikasjon) håndterer systemets forretningslogikk. Her kan man 
+kontrollere regler som ikke bare gjelder format, men også systemlogikk, som for eksempel om en sykkel allerede er utleid.
+
+**Fordeler:**
+- Sentral håndtering av regler
+- Beskytter databasen mot ugyldige operasjoner
+- Muliggjør mer avansert logikk
+
+**Ulemper:**
+- Krever ekstra implementasjon
+- Alene gir det ikke full beskyttelse dersom databasen aksesseres direkte
 
 **Validering i databasen:**
 
-[Skriv ditt svar her - diskuter fordeler og ulemper]
+Databasen fungerer som siste kontrollnivå for dataintegritet. Dette oppnås gjennom mekanismer som:
+
+``NOT NULL``,
+``CHECK-constraints``,
+``FOREIGN KEY``,
+``UNIQUE-constraints``
+
+**Fordeler:**
+- Sikrer datakonsistens uansett hvilken applikasjon som bruker databasen
+- Forhindrer lagring av ugyldige data
+
+**Ulemper:**
+
+- Gir ikke direkte tilbakemelding til brukeren før etter innsending
 
 **Konklusjon:**
 
-[Skriv ditt svar her - oppsummer hvor validering bør gjøres og hvorfor]
+Den mest hensiktsmessige løsningen er å validere data i alle lag av systemet. 
+Nettleseren gir god brukeropplevelse, applikasjonslaget håndterer forretningsregler, og databasen sikrer endelig 
+dataintegritet. Sammen gir dette et robust og sikkert flerlags-system.
 
 ---
 
